@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Prompt</title>
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: rgb(28, 27, 27);
+        }
+        .chat-column {
+            flex: 0.5; /* Reduced size */
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .left-column {
+            background-color: rgb(43, 42, 42);
+            border-radius: 10px;
+            animation: flowing-border 2s infinite;
+        }
+        .right-column {
+            background-color: rgb(43, 42, 42);
+            border-radius: 10px;
+            animation: flowing-border 2s infinite;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .question {
+            background-color: #e1e1e1;
+        }
+        .answer {
+            background-color: #d4edda;
+        }
+        .input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 40px 20px; /* Increased padding from top and bottom */
+            background-color: #111211; /* Green background */
+            border-top: 1px solid #111211; /* Green border */
+            animation: flowing-border 2s infinite;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            display: flex;
+            align-items: center;
+            
+        }
+
+        @keyframes flowing-border {
+            0% {
+            border-top-color: #00ff00;
+            }
+            50% {
+            border-top-color: #1eb4e1;
+            }
+            100% {
+            border-top-color: #c6ea23;
+            }
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+            border-radius: 20px; /* Rounded corners */
+            background-color: #d3d3d3; /* Gray background */
+            border: 1px solid #ccc; /* Optional: border for better visibility */
+        }
+        #submit-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        .output-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .output-column {
+            flex: 0.48;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-column left-column" id="question-column"></div>
+        <div class="chat-column right-column" id="answer-column"></div>
+    </div>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Type your answer here..." aria-label="User input">
+        <button id="submit-btn">✔</button>
+    </div>
+    <div class="output-container">
+        <div class="output-column" id="left-output"></div>
+        <div class="output-column" id="right-output"></div>
+    </div>
+
+    <script>
+        const questions = [
+            "How many rooms do you want in the house? (1-4)"
+        ];
+        let currentQuestion = 0;
+        let roomNumber = 0;
+        let userResponses = {};
+
+        function askQuestion() {
+            const questionColumn = document.getElementById('question-column');
+            const questionElement = document.createElement('div');
+            questionElement.classList.add('message', 'question');
+            questionElement.textContent = questions[currentQuestion];
+            questionColumn.appendChild(questionElement);
+            questionColumn.scrollTop = questionColumn.scrollHeight;
+        }
+
+        function displayAnswer(answer) {
+            const answerColumn = document.getElementById('answer-column');
+            const answerElement = document.createElement('div');
+            answerElement.classList.add('message', 'answer');
+            answerElement.textContent = answer;
+            answerColumn.appendChild(answerElement);
+            answerColumn.scrollTop = answerColumn.scrollHeight;
+        }
+
+        function displayImage(roomCount) {
+            let imageUrl;
+
+            if(roomCount === 1){
+                imageUrl = "./Images/Examples/example.png";
+            } else if(roomCount === 2){
+                imageUrl = "./Images/Examples/example2.png";
+            } else if(roomCount === 3){
+                imageUrl = "./Images/Examples/example3.png";
+            } else if(roomCount === 4){
+                imageUrl = "./Images/Examples/example4.png";
+            } else {
+                imageUrl = "./Images/Examples/default-house.png";
+            }
+            
+            const imageContainer = document.createElement('div');
+            imageContainer.classList.add('image-container');
+            imageContainer.innerHTML = `<img src="${imageUrl}" alt="${roomCount} room house">`;
+            document.getElementById('answer-column').appendChild(imageContainer);
+
+            // Add Generate 3D button
+            const generate3dBtn = document.createElement('button');
+            generate3dBtn.id = 'generate3d-btn';
+            generate3dBtn.textContent = 'Generate 3D';
+            generate3dBtn.addEventListener('click', generate3D);
+            document.getElementById('answer-column').appendChild(generate3dBtn);
+        }
+
+        function generate3D() {
+            fetch("http://127.0.0.1:5001/generate-3d")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Blender project created successfully!");
+                    } else {
+                        alert("Error creating Blender project: " + data.output);
+                    }
+                })
+                .catch(error => {
+                    alert("Failed to connect to server: " + error);
+                });
+        }
+
+        function handleSubmit() {
+            const userInput = document.getElementById('user-input');
+            const answer = userInput.value.trim();
+            
+            if (answer !== '') {
+                displayAnswer(answer);
+                userInput.value = '';
+
+                userResponses[questions[currentQuestion]] = answer;
+
+                if (currentQuestion === 0) {
+                    roomNumber = parseInt(answer);
+                    if (isNaN(roomNumber) || roomNumber < 1 || roomNumber > 4) {
+                        displayAnswer("Please enter a number between 1 and 4.");
+                        return;
+                    }
+                }
+
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    setTimeout(askQuestion, 2000);
+                } else {
+                    setTimeout(() => {
+                        displayImage(roomNumber);
+                        displayAnswer("Thank you for your responses. Here's a visualization of your house. Click 'Generate 3D' to open the Blender file.");
+                    }, 2000);
+                }
+            }
+        }
+
+        document.getElementById('submit-btn').addEventListener('click', handleSubmit);
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSubmit();
+            }
+        });
+
+        askQuestion();
+    </script>
+</body>
+</html>

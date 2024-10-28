@@ -5,16 +5,6 @@ import numpy as np
 
 from FloorplanToBlenderLib.generator import Door, Floor, Room, Wall, Window
 
-"""
-Generate
-This file contains code for generate data files, used when creating blender project.
-A temp storage of calculated data and a way to transfer data to the blender script.
-
-FloorplanToBlender3d
-Copyright (C) 2022 Daniel Westberg
-"""
-
-
 def generate_all_files(
     floorplan,
     info,
@@ -23,15 +13,6 @@ def generate_all_files(
     world_position=np.array([0, 0, 0]),
     world_rotation=np.array([0, 0, 0]),
 ):
-    """
-    Generate all data files
-    @Param image path
-    @Param dir build in negative or positive direction
-    @Param info, boolean if should be printed
-    @Param position, vector of float
-    @Param rotation, vector of float
-    @Return path to generated file, shape
-    """
     if world_direction is None:
         world_direction = 1
 

@@ -13,16 +13,6 @@ def find_rooms(
     room_closing_max_length=10,
     gap_in_wall_threshold=500000,
 ):
-    """
-
-    :param img: grey scale image of rooms, already eroded and doors removed etc.
-    :param noise_removal_threshold: Minimal area of blobs to be kept.
-    :param corners_threshold: Threshold to allow corners. Higher removes more of the house.
-    :param room_closing_max_length: Maximum line length to add to close off open doors.
-    :param gap_in_wall_threshold: Minimum number of pixels to identify component as room instead of hole in the wall.
-    :return: rooms: list of numpy arrays containing boolean masks for each detected room
-             colored_house: A colored version of the input image, where each room has a random color.
-    """
 
     assert 0 <= corners_threshold <= 1
     # Remove noise left from door removal

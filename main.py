@@ -82,7 +82,7 @@ if __name__ == "__main__":
         blender_install_path = auto_blender_install_path
 
     var = input(
-        "Please enter your blender installation path [default = "
+        "Blender is installed at ["
         + blender_install_path
         + "]: "
     )
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         blender_install_path = var
 
     var = input(
-        "Do you want to build from StackingFile or ConfigFile list ? [default = ConfigFile]: "
+        "StackingFile or ConfigFile list ? [default = ConfigFile]: "
     )
     if var in ["N", "n", "StackingFile", "stacking", "stackingfile"]:
         stacking_def_path = "./Stacking/all_separated_example.txt"
@@ -99,7 +99,6 @@ if __name__ == "__main__":
             stacking_def_path = var
         data_paths = stacking.parse_stacking_file(stacking_def_path)
 
-        print("")
         var = input(
             "This program is about to run and create blender3d project, continue? : "
         )
@@ -171,8 +170,6 @@ if __name__ == "__main__":
             create_blender_project(paths)
     else:
         create_blender_project(data_paths)
-
-    print("")
-    print("Done, Have a nice day!")
+    print("Done  :)")
 
 
